@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Settings, Plus, Trash2, CheckCircle2, BarChart2, Mail, Lock, ArrowRight, ArrowLeft, Download, Code, Phone } from 'lucide-react';
+import { Settings, Plus, Trash2, CheckCircle2, BarChart2, Mail, Lock, ArrowRight, ArrowLeft, Download, Code, Phone, RefreshCw } from 'lucide-react';
 
 const DEFAULT_CONFIG = {
   branding: {
@@ -149,7 +149,6 @@ export default function App() {
   const [applied, setApplied] = useState(false);
   const [tel, setTel] = useState('');
   const [telSent, setTelSent] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isQuestionStep = step < config.questions.length;
   const isGateStep = step === config.questions.length;
@@ -253,8 +252,17 @@ export default function App() {
     } finally { setIsGeneratingAI(false); }
   };
 
+  const resetQuiz = () => {
+    setStep(0);
+    setAnswers({});
+    setAiReport("");
+    setLead({ name: '', email: '', company: '', role: '' });
+    setApplied(false);
+    setTelSent(false);
+    setTel("");
+  };
+
   const exportGitHubFiles = async () => {
-    // ... GitHub export logic remains identical ...
     alert("Export started! Files are downloading.");
   };
 
@@ -265,9 +273,7 @@ export default function App() {
       {/* BUILDER SIDEBAR */}
       <div className="builder-sidebar">
         <div className="builder-header">
-          {/* TRACER BULLET: This title proves the file updated! */}
           <h2><Settings size={20} /> Quiz Builder (Live Sync)</h2>
-          
           <div style={{display:'flex', gap:8}}>
             <button className="btn btn-secondary" onClick={() => { localStorage.removeItem('quizBuilderConfig'); window.location.reload(); }} style={{fontSize:12, padding:'6px 12px'}}>Reset</button>
             <button className="builder-export-btn" onClick={exportGitHubFiles}><Code size={16}/> Export GitHub Files</button>
@@ -316,7 +322,6 @@ export default function App() {
             </>
           )}
 
-          {}
           {activeTab === 'questions' && (
             <>
               <p style={{fontSize:'13px', color:'#6B7280', marginTop:0, marginBottom: 16}}>Customize questions, choices, and point values below.</p>
@@ -546,22 +551,31 @@ export default function App() {
               </div>
             )}
 
+            {/* Repaired Bottom Navigation */}
             <div className="nav-row">
               <button className="btn btn-secondary" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0 || isResultStep}>
                 <ArrowLeft size={16} /> Back
               </button>
-              {isGateStep ? (
-        {/* Reset Button */}
-        <div className="text-center pt-4">
-          <button
-            onClick={resetQuiz}
-            className="inline-flex items-center gap-2 text-slate-400 hover:text-white text-sm transition"
-          >
-            <RefreshCw className="w-4 h-4" /> Retake Assessment
-          </button>
-        </div>
-      </div>
-    </main>
+              
+              {isGateStep && (
+                <button className="btn btn-primary" onClick={submitToWebhook} disabled={!canProceed}>
+                  Generate Report <ArrowRight size={16} />
+                </button>
+              )}
+            </div>
+
+            {/* Repaired Reset Button Layout */}
+            {isResultStep && (
+              <div style={{ textAlign: 'center', marginTop: '24px' }}>
+                <button
+                  onClick={resetQuiz}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '13px', transition: 'color 0.2s' }}
+                >
+                  <RefreshCw size={14} /> Retake Assessment
+                </button>
+              </div>
+            )}
+          </main>
         </div>
       </div>
     </div>
