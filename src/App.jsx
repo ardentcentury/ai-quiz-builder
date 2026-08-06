@@ -9,7 +9,7 @@ const DEFAULT_CONFIG = {
     logoUrl: '',
   },
   content: {
-    eyebrow: 'Executive Diagnostic (v2)',
+    eyebrow: 'Executive Diagnostic (v06Aug)',
     title: 'AI Workplace Readiness Index (Live)',
     description: 'Diagnostic tool to evaluate physical infrastructure readiness for AI-enabled workflows, hybrid presence, and future spatial adaptability.',
   },
