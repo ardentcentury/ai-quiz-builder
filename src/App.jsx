@@ -10,7 +10,7 @@ const DEFAULT_CONFIG = {
   },
   content: {
     eyebrow: 'Executive Diagnostic (v06Aug)',
-    title: 'AI Workplace Readiness Index (Live)',
+    title: 'AI Workplace Readiness Index (v06Aug)',
     description: 'Diagnostic tool to evaluate physical infrastructure readiness for AI-enabled workflows, hybrid presence, and future spatial adaptability.',
   },
   integration: {
