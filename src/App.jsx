@@ -235,54 +235,14 @@ export default function App() {
         return "Q: " + q.question + "\nA: " + (selectedOpt ? selectedOpt.label : 'N/A');
       }).join('\n\n');
 
-      const companyName = lead.company ? lead.company.trim() : '';
+      const promptStr = "Act as an expert workplace strategy consultant from the Steelcase Applied Research + Consulting (ARC) team. You are analyzing an 'AI Workplace Readiness' assessment for " + (lead.company || 'a client') + ". Their overall score is " + scoreData + "/100.\n\nHere are their specific answers:\n" + qaText + "\n\nWrite a professional diagnostic summary analyzing their readiness for AI-enabled workflows, hybrid collaboration, and spatial adaptability based specifically on their answers.\n\nStructure the report using exactly these four HTML headings (<h3>):\n\n<h3>What Your Readiness Score Means</h3>\nWrite a brief, objective paragraph explaining their score in the context of physical workspace readiness for the AI supercycle.\n\n<h3>Critical Friction Points</h3>\nProvide a bulleted list (<ul><li>) of 2-3 specific environmental or infrastructural barriers identified in their answers that will hinder AI adoption, focus, or cognitive performance. Use bold text for key concepts.\n\n<h3>Opportunities for High-Performance Optimization</h3>\nProvide a bulleted list (<ul><li>) of 2-3 specific opportunities where spatial interventions could immediately enhance their AI-augmented workflows. Where applicable, seamlessly integrate 1-2 of these exact Steelcase resources into your bullet points using HTML anchor tags (<a href=\"URL\" target=\"_blank\">Link Text</a>): \n- https://swiy.co/Steelcase-better-future-workplace \n- https://swiy.co/Steelcase-inclusive-future-workplace \n- https://swiy.co/Steelcase-community-based-design \n- https://swiy.co/Steelcase-4new-Ai-workspaces \n- https://swiy.co/Steelcase-People-Centered-AI-Spaces\n\n<h3>Next Steps in Your Diagnostic Journey</h3>\nWrite a brief, strategic paragraph stating that solving these complex friction points requires more than a quick fix. Explain that a Steelcase Applied Research + Consulting professional will reach out to schedule a deep-dive diagnostic session to look holistically at their culture, process, tools, and space in order to develop a comprehensive, Community-Based Design solution.\n\nFormat the entire response using standard HTML tags (<p>, <ul>, <li>, <strong>, <h3>, <a>). Return ONLY valid HTML, without any markdown formatting, backticks, or conversational filler.";
 
-      const promptStr = `Act as an expert workplace strategy consultant from the Steelcase Applied Research + Consulting (ARC) team. You are analyzing an 'AI Workplace Readiness' assessment for "${companyName || 'a client'}". Their overall score is ${scoreData}/100.
-
-Here are their specific answers:
-${qaText}
-
-STEP 1: ONLINE COMPANY VERIFICATION & CONTEXT RESEARCH
-Use Google Search to research the company name "${companyName}".
-1. Verify if "${companyName}" is a real, active company.
-2. If real, identify their industry, primary operations, and any major recent company news, strategic initiatives, or workplace announcements.
-3. If the name is fake, generic, a test input (e.g., "test", "asdf", "fake"), or cannot be verified online, note that the company could not be found.
-
-STEP 2: WRITE THE DIAGNOSTIC REPORT
-Structure the report using exactly these five HTML headings (<h3>):
-
-<h3>Company Context & Verification</h3>
-- If the company is verified: Write 2-3 sentences acknowledging their industry and any relevant recent news or public context, explaining how their workplace needs align with their business focus.
-- If the company is unverified or appears fake/generic: Include a polite statement: "<p><em>Note: We could not find or verify <strong>${companyName || 'the provided company name'}</strong> online, but based on your assessment responses, here is our workplace readiness diagnosis for your organization:</em></p>"
-
-<h3>What Your Readiness Score Means</h3>
-Write a brief, objective paragraph explaining their score (${scoreData}/100) in the context of physical workspace readiness for the AI supercycle, incorporating their industry context if verified.
-
-<h3>Critical Friction Points</h3>
-Provide a bulleted list (<ul><li>) of 2-3 specific environmental or infrastructural barriers identified in their answers that will hinder AI adoption, focus, or cognitive performance. Use bold text for key concepts.
-
-<h3>Opportunities for High-Performance Optimization</h3>
-Provide a bulleted list (<ul><li>) of 2-3 specific opportunities where spatial interventions could immediately enhance their AI-augmented workflows. Where applicable, seamlessly integrate 1-2 of these exact Steelcase resources into your bullet points using HTML anchor tags (<a href="URL" target="_blank">Link Text</a>):
-- https://swiy.co/Steelcase-better-future-workplace
-- https://swiy.co/Steelcase-inclusive-future-workplace
-- https://swiy.co/Steelcase-community-based-design
-- https://swiy.co/Steelcase-4new-AI-workspaces
-- https://swiy.co/Steelcase-People-Centered-AI-Spaces
-
-<h3>Next Steps in Your Diagnostic Journey</h3>
-Write a brief, strategic paragraph stating that solving these complex friction points requires more than a quick fix. Explain that a Steelcase Applied Research + Consulting professional will reach out to schedule a deep-dive diagnostic session to look holistically at their culture, process, tools, and space in order to develop a comprehensive, Community-Based Design solution.
-
-Format the entire response using standard HTML tags (<p>, <ul>, <li>, <strong>, <h3>, <a>). Return ONLY valid HTML, without any markdown formatting, backticks, or conversational filler.`;
-
-      const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-lite:generateContent?key=" + config.integration.geminiApiKey, {
+      const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=" + config.integration.geminiApiKey, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: promptStr }] }],
-          tools: [{ googleSearch: {} }]
-        })
+        body: JSON.stringify({ contents: [{ parts: [{ text: promptStr }] }] })
       });
-
+      
       if (!response.ok) throw new Error(`API Error`);
       const data = await response.json();
       if (data.candidates && data.candidates[0]) {
@@ -591,16 +551,17 @@ Format the entire response using standard HTML tags (<p>, <ul>, <li>, <strong>, 
                 <ArrowLeft size={16} /> Back
               </button>
               {isGateStep ? (
-                <button className="btn btn-primary" disabled={!canProceed || isSubmitting} onClick={submitToWebhook}>
-                  {isSubmitting ? "Processing..." : "Process Report"} <ArrowRight size={16} />
-                </button>
-              ) : isQuestionStep ? (
-                <button className="btn btn-primary" disabled={!canProceed} onClick={() => setStep(step + 1)}>Next Metric <ArrowRight size={16} /></button>
-              ) : (
-                <button className="btn btn-secondary" onClick={() => window.print()}><Download size={16} /> Export PDF</button>
-              )}
-            </div>
-          </main>
+        {/* Reset Button */}
+        <div className="text-center pt-4">
+          <button
+            onClick={resetQuiz}
+            className="inline-flex items-center gap-2 text-slate-400 hover:text-white text-sm transition"
+          >
+            <RefreshCw className="w-4 h-4" /> Retake Assessment
+          </button>
+        </div>
+      </div>
+    </main>
         </div>
       </div>
     </div>
